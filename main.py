@@ -1,16 +1,12 @@
 import requests
-import urllib
-from urllib import request
 import json
 
 def main():
    readAndSave()
-   r = requests.get("https://www.rocknrollamerica.net/Top1000.html")
-   #test = ' 1px; padding-right: 1px; padding-top: 1px u1:str="Another Brick In The Wall "> Like A Rolling Stone</td> '
-   li =  list(r.text)
-   #print(li)
+   #r = requests.get("https://www.rocknrollamerica.net/Top1000.html")
+   #li =  list(r.text)
    listOfSongs = []
-   for i in range(len(li)): #Gathers list of songs
+   """for i in range(len(li)): #Gathers list of songs
        tempStr = ""
        if li[i] == "s":
            if li[i+1] == "t":
@@ -26,25 +22,39 @@ def main():
                                #print(li[iter])
                                iter += 1
        if len(tempStr) >= 2:
-        listOfSongs.append(tempStr)
-   testList = ["I'm on a boat"]
+        listOfSongs.append(tempStr) """
+   testList = ["Stairway to Heaven"]
    for i in testList: #Check if song has already been used
        if not(i in usedSongs):
            #create query url
-           qUrl = "https://www.google.com/search?safe=strict&rlz=1C1CHBF_enUS887US887&sxsrf=ALeKk03cyazYe4mCJVoCXP-_HwOMs9ETyw%3A1593109458102&ei=0uv0Xo3cBYz--gTpq5fQBg&q="
-           midUrl = ""
-           endUrl = "&gs_lcp=CgZwc3ktYWIQAxgAMggIABAHEAoQHjIICAAQCBAHEB4yCAgAEAgQBxAeOgcIABCxAxBDOgQIABBDOgYIABAHEB46AggAOgQIABAKOgYIABAIEB5Q6RlYqTFgpDhoAHAAeACAAW2IAfcGkgEDOC4ymAEAoAEBqgEHZ3dzLXdpeg&sclient=psy-ab"
-           li = i.split()
-           for i in li:
-                midUrl += i + "+"
-           midUrl += "lyrics"
-           midUrl += "&oq" + midUrl
-           qUrl += midUrl + endUrl
-           f = open("testString.txt", "w")
-           f.write(qUrl)
-           f.close()
-           #print(qUrl)
+           sUrl = getSearchURL(i)[0]
+           songName = getSearchURL(i)[1]
+           q = requests.get(sUrl)
+           f = open("textDump.txt", "w")
+           f.write(str(q.text.split()))
+           f.close
+           lURL = ""
+           done = False
+           if not done:
+               for k in q.text.split():
+                   if songName in k:
+                       for l in range(len(k)):
+                           if len(k) >= l+8:
+                               if k[l] == "h" and k[l+1] == "t"  and k[l+2] == "t" and k[l+3] == "p":
+                                   finished = False
+                                   while not finished and not done:
+                                       if (len(k) - 4) < 0: #Making sure next call does not throw index out of bounds exception
+                                           print("error")
+                                           finished = True
+                                       else:
+                                           if k[l-1] == "l" and k[l-2] == "m" and k[l-3] == "t" and k[l-4] == "h":
+                                               finished = True
+                                               done = True
+                                           else:
+                                               lURL += k[l]
+                                               l += 1
 
+           print(lURL)
             #usedSongs.append(i)
 
     #pushInfo():
@@ -65,8 +75,18 @@ def pushInfo():
     f = open("data.json", "w")
     f.write({"Averages": {"Lines":  AVGLines, "Stanzas":  AVGStanzas, "WordsPerLine":  AVGWordsPerLine}})
     f.close()
-
-
+def getSearchURL(song):
+    qUrl = "https://search.azlyrics.com/search.php?q="
+    tempWP = ""
+    temp = ""
+    li = list(song.split())
+    for i in range(len(li)):
+        temp += li[i]
+        if i == (len(li) - 1):
+            tempWP += li[i]
+        else:
+            tempWP += li[i] + "+"
+    return [qUrl+tempWP, temp.lower()]
 def readAndSave():
     # Read JSON File and compile all into variables
     with open('data.json', 'r') as openfile:
